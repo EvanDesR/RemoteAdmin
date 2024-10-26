@@ -27,7 +27,7 @@ Uses winsock2's listen function, to set the socket into listening mode, and allo
 
 
 
-##### incomingConnectHandler() - Accept inbound socket connection attempts, then creating a clientInformation object, to add to listOfClientSocketInformation array. ((Note: Change from bool to void
+#### incomingConnectHandler() - Accept inbound socket connection attempts, then creating a clientInformation object, to add to listOfClientSocketInformation array. ((Note: Change from bool to void
 
 Creates a copy of fd_set referenceServ (which houses the SOCKET object, of the listening socket)
 
