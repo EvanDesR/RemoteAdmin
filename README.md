@@ -13,7 +13,8 @@ Storing the socket, of a single connection. The clientInformation object, holds 
 
 ## Functions
 
-### servSetup()  Prepares winsock and opens listening socket on server
+### servSetup()  
+###  Prepares winsock and opens listening socket on server
 
 Initalizes winsock2, and performs prerequisite operations.
 
@@ -27,7 +28,8 @@ Uses winsock2's listen function, to set the socket into listening mode, and allo
 
 
 
-### incomingConnectHandler()   Accept inbound socket connection attempts, then creating a clientInformation object, to add to listOfClientSocketInformation array. ((Note: Change from bool to void
+### incomingConnectHandler() 
+###  Accept inbound socket connection attempts, then creating a clientInformation object, to add to listOfClientSocketInformation array. ((Note: Change from bool to void
 
 Creates a copy of fd_set referenceServ (which houses the SOCKET object, of the listening socket)
 
@@ -42,7 +44,8 @@ A new clientSocketInformnation object is instantiated with SOCKET clientAndServe
 counterForIntakeOfNewClients is incremeneted +1, this int is used when we above created a new object in the array. Note: This will soon be replaced by something simpler, something along the lines of (totalArraysSize/objectSize)+1). 
 
 
-### msgRecv()   Check if any of our clients, on listOfClientSocketInformation have sent us data to read
+### msgRecv()   
+###  Check if any of our clients, on listOfClientSocketInformation have sent us data to read
 
 Loop that increments through listOfClientInformation, calling the isReadable object function to check if the socket has readable data, waiting to be seen. The program checks readability first, because recv() hangs until the socket has data to process.
 
