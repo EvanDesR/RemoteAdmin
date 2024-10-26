@@ -13,7 +13,7 @@ Storing the socket, of a single connection. The clientInformation object, holds 
 ---
 ## Functions
 
-####servSetup()
+#### servSetup()
 
 Initalizes winsock2, and performs prerequisite operations.
 Populates hint struct, which clarifies the specifications of the sockets we will use.
@@ -23,5 +23,5 @@ Uses winsock2's listen function, to set the socket into listening mode, and allo
 
 
 
-#####incomingConnectionHandler()
+##### incomingConnectionHandler()
 
