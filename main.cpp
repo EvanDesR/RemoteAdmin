@@ -1,17 +1,8 @@
-#include <iostream>
-#include <WinSock2.h>
-#include <ws2tcpip.h>
-#include <ws2def.h>
-#include <stdlib.h>
-#include <time.h>
-#include <sys/types.h>
-#include "msgOperations.cpp"
+#include "needed.h"
 
-#pragma comment(lib, "ws2_32.lib") //winsock library file
 //structs initializations
 struct addrinfo hints,*serv; //ipv4 only
-struct fd_set listOfClients,referenceServ,testMe, sendList;
-int counterForIntakeOfNewClients{};
+struct fd_set listOfClients,testMe, serverListeningSocketAsSet;
 const timeval msgHandlerTimeout = { 0,  50 }; // 50ms timeout for recv
 
 
@@ -47,7 +38,13 @@ incomingConnectHandler: Checks if the server programs listening port, has a queu
 
 
 
+struct messageInformation
+{
+	char bufferForMsgContent[4096];
+	short int msgID;
 
+
+};
 
 
 
@@ -61,8 +58,9 @@ struct clientSocketInformation
 	FD_SET socketOfClientAsSet;
 	SOCKET socketOfClient{};
 	bool isAdmin{};
-	void initializeSet(SOCKET, FD_SET);
 	bool isReadable(FD_SET socketOfClientAsSet);
+	bool isDisconnected(FD_SET socketOfClientAsSet);
+
 		
 		//Constructor
 	clientSocketInformation(SOCKET socketOfClientInput, bool isAdminInput)
@@ -84,6 +82,10 @@ struct clientSocketInformation
 
 
 
+
+
+
+
 bool clientSocketInformation::isReadable(FD_SET clientSocketSet)
 {
 	FD_SET cloneOfClientSocketSet = clientSocketSet;
@@ -92,11 +94,33 @@ bool clientSocketInformation::isReadable(FD_SET clientSocketSet)
 }
 
 
+bool clientSocketInformation::isDisconnected(FD_SET clientSocketSet)
+{
+	FD_SET cloneOfClientSocketSet = clientSocketSet;
+	bool resultOfReadTest = select(NULL, &cloneOfClientSocketSet, NULL, NULL, &msgHandlerTimeout);
+	if (resultOfReadTest = true)
+	{
+		char recvBuff[4096];
+		ZeroMemory(recvBuff, 4096);
+		int a = recvBuff[53];
+		int amountOfNullBeforeInput = 0;
+		for (int increment = 1; increment < sizeof(recvBuff); increment++)
+		{
+			int buffCharAsANSI = recvBuff[increment];
+			if (buffCharAsANSI == 0)
+			{
+				amountOfNullBeforeInput++;
+			}
+		}
+		return (amountOfNullBeforeInput < 4095)?  true :  false; //yay finally, I finally thought to use the ternary operator!
+	}
+}
+
+
+
+
+
 clientSocketInformation listOfClientSocketInformation[120];
-
- int portServ{ 7878 };
-
-
 
 
 int servSetup()
@@ -124,71 +148,74 @@ int servSetup()
 		std::cout << "server is binded to 40343" << "\n";
 	}
 
-	FD_SET(serverListeningSocket, &referenceServ); //enters serverListeningSocket into referenceServ socket set,
 	listen(serverListeningSocket, '100');
 	return serverListeningSocket;
 }
 
-
-
-
-bool incomingConnectHandler(SOCKET servSocket)
+int howManySocketsInListOfClientSocketInformation()
 {
-	fd_set copyOfReferenceServ = referenceServ; //select() alters whatever set is provided as arg, using a copy of original set ensures
-						 						//We can maintain intended integrity of referenceServ, which only holds our servers listen socket.
-	
-	int isReadable = select(NULL, &copyOfReferenceServ, NULL, NULL, &msgHandlerTimeout); // If any socket in copyofReferenceServ, has readable content it will return true
+
+	int i = 0;
+
+	while (i < (sizeof(listOfClientSocketInformation) / sizeof(clientSocketInformation[1])) && listOfClientSocketInformation[i].socketOfClient != 0 && listOfClientSocketInformation[i].isDisconnected(listOfClientSocketInformation[i].socketOfClientAsSet) != 1)
+	{ //ALERT: I added isDisconnected into the above while loop, as I want to ensure the validity of listOfClientSocketInformation, and not have this function return an inaccurate amount of sockets in the set. 
+		i++;
+	}
+	return i;
+}
+
+
+
+void incomingConnectHandler(SOCKET servSocket)
+{
+	SOCKET serverSock = servSocket;
+	FD_SET(serverSock, &serverListeningSocketAsSet);
+	int isThereIncomingConnection = select(NULL, &serverListeningSocketAsSet, NULL, NULL, &msgHandlerTimeout); // If any socket in serverListeningSocketAsSet, has readable content it will return true
 																					//As we only have our servers listening socket, we are effectively checking if any inbound connection queue 
-	if (isReadable!=0)
+	if (isThereIncomingConnection!=0)
 	{
-		std::cout << "attempting to establish socket connection with " << isReadable << "\n";
-
-		// std::cout << "Listening socket, appears to have " << res <<" connection.Running clientHandler()";
+		std::cout << "attempting to establish socket connection with \n";
 		SOCKET clientAndServerCommunicationSocket = accept(servSocket, NULL, NULL); //accept blocks until connection is made. That is why we did the above inbound queue check
-
 		FD_SET(clientAndServerCommunicationSocket, &listOfClients); //Sockfd of client is added to listOfClients fd set
-	//	clientSocketInformation currentIntake{ clientAndServerCommunicationSocket,false};
-		listOfClientSocketInformation[counterForIntakeOfNewClients] = { clientAndServerCommunicationSocket,false };
-		counterForIntakeOfNewClients++;
+	listOfClientSocketInformation[howManySocketsInListOfClientSocketInformation()] = {clientAndServerCommunicationSocket,false};
+
 	}
-	return false;
+
+
 }
 
 
 
 
-void forwardMsg(char buff[4096], int buffSize,fd_set sendList, SOCKET fromsocket)
+
+void forwardMsg(char buff[4096], int buffSize, SOCKET fromsocket)
 {
-	//fd_set writable = listOfClients;
-	int x{ 0 }; //0 owrked
-	int initialSendListQuantity = sendList.fd_count;
+	int socketIncrementer = 0; //0 owrked
+	int amountOfSocketsInListOfClientSocketInformation = howManySocketsInListOfClientSocketInformation();
 	char* sendbuf = buff;
-	fd_set sendCheck{};
 
-	while (initialSendListQuantity >= x)
+	while (amountOfSocketsInListOfClientSocketInformation >= socketIncrementer)
 	{
-		FD_ZERO(&sendCheck);
-		SOCKET sendCheckSocket = sendList.fd_array[x];
-		FD_SET(sendCheckSocket, &sendCheck);
-		std::cout << "testing " << sendCheck.fd_array[x] << " for ownership \n";
-		if ( sendCheckSocket != fromsocket)
+
+		std::cout << "testing " << listOfClientSocketInformation[socketIncrementer].socketOfClient << " for ownership \n";
+		if ( listOfClientSocketInformation[socketIncrementer].socketOfClient != fromsocket)
 		{
-			std::cout << "frwrding msg from socket " << fromsocket << " to socket: " << sendList.fd_array[x] << "\n";
-			send(sendList.fd_array[x], sendbuf, (int)strlen(sendbuf), 0);
+			std::cout << "sockets in listOfClientSocketInformation" << howManySocketsInListOfClientSocketInformation() << "\n";
+
+			std::cout << "frwrding msg from socket " << fromsocket << " to socket: " << listOfClientSocketInformation[socketIncrementer].socketOfClient << "\n";
+			send(listOfClientSocketInformation[socketIncrementer].socketOfClient, sendbuf, (int)strlen(sendbuf), 0);
 		}
-		x++;
+		socketIncrementer++;
 	}
 
 }
+
 
 void msgRecv()
 {
-	fd_set listOfReadableClients = listOfClients;
-	fd_set clientAddressBook = listOfClients;
-	sendList = listOfClients;
 	char buff[4096];
 	int buffSize = sizeof(buff);
-	int totalSockCount = listOfClients.fd_count;
+	int totalSockCount = howManySocketsInListOfClientSocketInformation();
 	//read a copy of list of clients fd set for readability, return a altered fd with states
 	//fd_count of non-altered listOfClients, return total amount of socks (totalSockCount)
 	int i = 0;
@@ -200,18 +227,26 @@ void msgRecv()
 	
 
 		
-		if(listOfClientSocketInformation[i].isReadable(listOfClientSocketInformation[i].socketOfClientAsSet) != 0)
+		if(listOfClientSocketInformation[i].isReadable(listOfClientSocketInformation[i].socketOfClientAsSet) != 0 )
 		{
-			//std::cout << listOfClientSocketInformation[i].isReadable(listOfClientSocketInformation[i].socketOfClientAsSet) << "!!!!!!!!!!!!!!!!!!!!!!!!!!! \n";
 			ZeroMemory(buff, 4096);
-
-			std::cout << "hang on recv \n";
 			SOCKET socketToTest = listOfClientSocketInformation[i].socketOfClient; //Copies socketOfClient from listOfclientSocketInformation object array
 
 			int inbound = recv(socketToTest, buff, 4096, 0); //hangs until inboundSocket has data!, if we can intelligently select what filedescriptor inboundSocket is this wont be a proble,
-			std::cout << "segments received from:" << "from sock:" << i << "\n";
-			std::cout << "msg content: " << buff << "\n";
-			forwardMsg(buff, buffSize,sendList, listOfClientSocketInformation[i].socketOfClient);
+			std::cout << "receiving from sock:" << i << "\n";
+
+			if (listOfClientSocketInformation[i].isDisconnected(listOfClientSocketInformation[i].socketOfClientAsSet) != true)
+			{
+				forwardMsg(buff, buffSize, listOfClientSocketInformation[i].socketOfClient);
+				std::ofstream tcpLogOut{ "tcpLogs.txt",std::ios::app };
+				tcpLogOut << buff;
+				tcpLogOut << sizeof(buff);
+				tcpLogOut << "---";
+			}
+			else
+			{
+				std::cout << "socket " << listOfClientSocketInformation[i].socketOfClient << " has disconnected. They should be removed from listOfClientInformation accordingly. \n";
+			}
 			ZeroMemory(buff, 4096);
 
 
@@ -232,7 +267,7 @@ void main()
 	int servSocket = servSetup(); //Creates socket object and binds it to port
 	while (true)
 	{
-
+		
 		incomingConnectHandler(servSocket);
 		msgRecv();
 	}
@@ -242,7 +277,30 @@ void main()
 
 
 //todo
-//regex scan buffers first characters for /cmd
+
+//listOfClientSocketInformation cleanup. If isDisconnected returns true, the socket should be removed from the list.
+
+//Multi-threading so server admin inputs can be taken concurrently, alongside other operations.
+
+//Utilize more .cpp files for better organization, and clearer distinction between the seperate operations of this program.
+
+//CLI Parser to allow interpretation, and execution of modules based on the server admin CLI input.
+
+//Further expand on module concept
+
+
+
+
+
+
+//DONE
+// fd_set sendlist should be entirely retired, as it has been replaced, and expanded on in functionality by the object array listOfClientInformation.
+	//sendlist.fdcount provides amount of file descriptors in the set. It is used as a stop condition for a while loop incrementer. 
+	// Once i can provide an int value, of how many objects are in the listOfClientInformation array, only then can sendList be removed.
+
+
+
+//isDisconnected should also remove the client socket from clientSocketInformation, and close the socket from our side.
+	// it probably should rearrange the listOfClientInformation array, to ensure its remains contiguous in index (i hope this makes sense.)
+
 //prepare code for a proper github release, and make a really compelling logic graph.
-//investigate file sharing over winsock
-//Find a purpose for this project, other than as a technical demonstration. 
