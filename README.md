@@ -3,7 +3,11 @@ Hooby/School project, remote administrator tool. (Work in progress). Expect mult
 
 Built with C++, using the winapi (winsock2). The server accepts incoming TCP socket requests, and will forward data from any of the established socket, to all other established sockets. With an already established object based backbone, I have made preparations to build this into a larger remote administration program: integrating file transferring, cmd execution, and a plug, and play module system which will allow users greater customization of functionality, and basic automations. 
 
+# To-do
 
+1. Update documentation
+2. Change listOfClientSocketInformation, from an array (fixed size), to a vector (dynamic sizing). This is required to implement a function to easily remove disconnected sockets from listOfClientSocketInformation.
+3. Implement multithreading, to allow for a CLI that will be used later on to handle the server owners inputted commands.
 
 # Objects
 
