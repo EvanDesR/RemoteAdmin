@@ -75,22 +75,22 @@ void main()
 
 
 
-//todo
-
-//rework logReply, as currently all calls to logReply refererence the objects fields in a verbose,
-// its call syntax is complicated by it being a member of messageInformation, meaning every call to it must be via a messageObejct
+//todo before release
 
 
+//rework logging entirely.
 
-//Utilize more .cpp files for better organization, and clearer distinction between the seperate operations of this program.
+//functions take SOCKET as arg, and that parameter is provided by hashMap[socketHere].
 
-//CLI Parser to allow interpretation, and execution of modules based on the server admin CLI input.
-
-//Further expand on module concept
-
+//replace iteration in incomingHandler, to use unsorted_map iterator beginning to end. http://scottmeyers.blogspot.com/2015/09/should-you-be-using-something-instead.html (unsorted_map iteration is FAST!)
 
 
+//CLI Parser enforces lowercase only up to the second flag
+
+//general stylistic things
 
 
 
-//DONE
+
+
+

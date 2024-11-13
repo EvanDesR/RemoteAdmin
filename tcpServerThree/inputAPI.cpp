@@ -26,51 +26,43 @@
 //Connection module designation, is for any action that acts solely upon one clientSocketInformation 
 //It does not implicitly mmean that it has to be related to sending information. It can be for something 
 //as simple as listing messageHisotry of that partiuclar clientobject
-//typedef match_results<std::string::const_iterator> smatch;
+
 std::regex validConnection("(/connection)\\s{1,3}(\\d{2,4})\\s{1,3}([/A-Zi]\\w+)");//check if /connectoin sockfd /module
 std::regex validServer("(/server)\\s{1,3}([/A-Zi]\\w+)"); //check if /server sockfd /module 
 std::regex sockfdParser("(\\d{2,4})");
 std::regex allFlags(R"(\/\S+)"); //regex for every /char234sHere
+std::regex moduleFlagRegex("(/\\w+)$");
+
 //use to exclude everything b4 2nd flag!!!!!!!!!!!!!!!!!!!!!!!!!
 
 
 
-int changeAlias(clientSocketInformation& clientObjectPassedToCmd) //pass by ref
-{
-    std::getline(std::cin, clientObjectPassedToCmd.alias);
-    return 3;
-}
+
 
 
 void connectionParser(std::string input)
 {
-    std::smatch matches;
-
-    std::regex_search(input, matches, sockfdParser);
-    std::string sockfdParsed = matches[0]; //sockFD is stored!
+    std::smatch matches; //string match result container.
+    std::regex_search(input, matches, sockfdParser); //search input with sockfdParser, and put results in matches
+    //std::string sockfdParsed = matches[0]; //sockFD is stored!
     std::size_t pos{};
-    int sockInt{ std::stoi(sockfdParsed,&pos) };
-    SOCKET inputSocketParsed = sockInt;
-    if (hashMap.find(sockInt) != hashMap.end())
+    int sockAsInt{ std::stoi(matches[0],&pos)}; //sockAsInt is the string at match[0], turned into a integer
+    SOCKET inputSocketParsed = sockAsInt; //inputSocketParsed is assigned the value of sockAsInt. (SOCKET is actually a type_def for a uint_64.)  
+    std::string moduleFlagParsed;
+    std::string moduleFlagParsedLower;
+
+
+    if (hashMap.find(sockAsInt) != hashMap.end()) // if an entry exists in hashMap which uses SockAsInt as a key. If sockAsInt does not exist as a key in hashMap hashMap.find() will return an iterator to hashMap.end.
     {
-        std::cout << "THE PROVIDED SOCKET IS VALID \n";
-        //assign that object to ptr
+        std::cout << "Regex extracted sock value: " << sockAsInt << std::endl;
 
 
-
-        std::cout << "Extracted sockfd value: " << sockInt << std::endl; //sockfd is parsed
-
-        std::regex moduleFlagRegex("(/\\w+)$");
-
-        std::string moduleFlagParsed;
-        std::string moduleFlagParsedLower;
-
-        std::sregex_iterator begin(input.begin(), input.end(), allFlags), end;
+        std::sregex_iterator begin(input.begin(), input.end(), allFlags), end; //to be honest I hardly understand this line of code. It creates an iterator for the beginning of input
         int flagCounter = 0;
         for (auto it = begin; it != end; ++it) {
             flagCounter++;
             if (flagCounter == 2) {
-                moduleFlagParsed = it->str(); //module Flag is stored!
+                moduleFlagParsed = (it->str()); //I dont even know i this must be cast into str()? as its of type auto. It should already be a string.
                 std::cout << "moduleFlagParsed: " << moduleFlagParsed << "\n";
                 // Outputs: "Found: /flag2"
             }
@@ -78,19 +70,28 @@ void connectionParser(std::string input)
 
         if (moduleFlagParsed == "/cmd")
         {
-            //remove everything until /cmd
             std::size_t position = input.find("/cmd");
-            std::string passToModule = input.substr(position);
+            std::string passToModule = input.substr(position);       //creates new string with everything after /cmd
             std::cout << "passing " << passToModule << " to cmd module" << "\n";
-            cmdModule(hashMap.at(inputSocketParsed),passToModule);
+            cmdModule(hashMap.at(inputSocketParsed).socketOfClient,passToModule);
         }
         else if (moduleFlagParsed == "/changealias")
         {
             std::size_t position = input.find("/changealias");
             std::string passToModule = input.substr(position);
             std::cout << "passing " << passToModule << " to changeAlias module" << "\n";
-            changeAlias(hashMap[inputSocketParsed]);
+            changeAlias(hashMap[inputSocketParsed].socketOfClient);
             std::cout << "new alias is: " << hashMap[inputSocketParsed].alias << " (ACCESSED VIA HASHMAP REFERNCE)";
+
+            //update vector call
+        }
+        else if (moduleFlagParsed == "/forwardtoall")
+        {
+            std::size_t position = input.find("/forwardtoall");
+            std::string passToModule = input.substr(position);
+            std::cout << "passing " << passToModule << " to forwardToAll module" << "\n";
+            //forwardToAll(hashMap[inputSocketParsed]);
+            std::cout << "forwardToAll() parameters require a rework as its not optimized for hashMap centric design";
 
             //update vector call
         }
@@ -104,7 +105,7 @@ void connectionParser(std::string input)
         {
             std::cout << "error no cmd known as: " << moduleFlagParsed << " found! \n \n";
 
-            std::cout << "Valid Options are \n";
+            std::cout << "Valid /connection Options are \n";
             std::cout << "/cmd \n";
             std::cout << "/changealais \n";
             std::cout << "/reconscript \n";
@@ -168,7 +169,7 @@ void serverParser(std::string input)
 
         std::cout << "error no cmd known as: " << moduleFlagParsed << " found! \n \n";
 
-        std::cout << "Valid Options are \n";
+        std::cout << "Valid /server Options are \n";
         std::cout << "/listallsockets \n";
         std::cout << "/stats \n";
         std::cout << "/save \n";
@@ -212,9 +213,4 @@ void cliParser()
 
         std::cout << "------- \n";
     }
-}
-
-void xmlParser()
-{
-
 }

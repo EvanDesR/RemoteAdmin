@@ -1036,3 +1036,403 @@ simple message?:1
 message contents: 
 
 ---
+---
+From:0
+Sent/Reply history is: 1
+simple message?:204
+message contents: hello
+---
+---
+From:0
+Sent/Reply history is: 2
+simple message?:1
+message contents: 
+
+---
+---
+From:0
+Sent/Reply history is: 3
+simple message?:1
+message contents: yay!
+---
+---
+From:0
+Sent/Reply history is: 4
+simple message?:1
+message contents: 
+
+---
+---
+From:0
+Sent/Reply history is: 1
+simple message?:204
+message contents: FDS
+---
+---
+From:0
+Sent/Reply history is: 2
+simple message?:1
+message contents: 
+
+---
+---
+From:0
+Sent/Reply history is: 3
+simple message?:1
+message contents: yo
+---
+---
+From:0
+Sent/Reply history is: 4
+simple message?:1
+message contents: 
+
+---
+---
+From:0
+Sent/Reply history is: 1
+simple message?:204
+message contents: hello
+---
+---
+From:0
+Sent/Reply history is: 2
+simple message?:1
+message contents: 
+
+---
+---
+From:0
+Sent/Reply history is: 3
+simple message?:1
+message contents: [A
+---
+---
+From:0
+Sent/Reply history is: 4
+simple message?:1
+message contents: 
+
+---
+---
+From:0
+Sent/Reply history is: 5
+simple message?:1
+message contents: s
+---
+---
+From:0
+Sent/Reply history is: 6
+simple message?:1
+message contents: 
+
+---
+---
+From:0
+Sent/Reply history is: 1
+simple message?:204
+message contents: test
+---
+---
+From:0
+Sent/Reply history is: 2
+simple message?:1
+message contents: 
+
+---
+---
+From:0
+Sent/Reply history is: 1
+simple message?:204
+message contents: yp
+---
+---
+From:0
+Sent/Reply history is: 2
+simple message?:1
+message contents: 
+
+---
+---
+From:0
+Sent/Reply history is: 1
+simple message?:204
+message contents: fdas
+---
+---
+From:0
+Sent/Reply history is: 2
+simple message?:1
+message contents: 
+
+---
+---
+From:0
+Sent/Reply history is: 3
+simple message?:1
+message contents: fdsa
+---
+---
+From:0
+Sent/Reply history is: 4
+simple message?:1
+message contents: 
+
+---
+---
+From:0
+Sent/Reply history is: 5
+simple message?:1
+message contents: sdf
+---
+---
+From:0
+Sent/Reply history is: 6
+simple message?:1
+message contents: 
+
+---
+---
+From:0
+Sent/Reply history is: 7
+simple message?:1
+message contents: aa
+---
+---
+From:0
+Sent/Reply history is: 8
+simple message?:1
+message contents: 
+
+---
+---
+From:0
+Sent/Reply history is: 9
+simple message?:1
+message contents: sfdafs
+---
+---
+From:0
+Sent/Reply history is: 10
+simple message?:1
+message contents: 
+
+---
+---
+From:0
+Sent/Reply history is: 11
+simple message?:1
+message contents: ddf
+---
+---
+From:0
+Sent/Reply history is: 12
+simple message?:1
+message contents: 
+
+---
+---
+From:0
+Sent/Reply history is: 13
+simple message?:1
+message contents: asd
+---
+---
+From:0
+Sent/Reply history is: 14
+simple message?:1
+message contents: 
+
+---
+---
+From:0
+Sent/Reply history is: 15
+simple message?:1
+message contents: fas
+---
+---
+From:0
+Sent/Reply history is: 16
+simple message?:1
+message contents: 
+
+---
+---
+From:0
+Sent/Reply history is: 17
+simple message?:1
+message contents: df
+---
+---
+From:0
+Sent/Reply history is: 18
+simple message?:1
+message contents: 
+
+---
+---
+From:0
+Sent/Reply history is: 19
+simple message?:1
+message contents: sdf
+---
+---
+From:0
+Sent/Reply history is: 20
+simple message?:1
+message contents: 
+
+---
+---
+From:0
+Sent/Reply history is: 21
+simple message?:1
+message contents: sf
+---
+---
+From:0
+Sent/Reply history is: 22
+simple message?:1
+message contents: 
+
+---
+---
+From:0
+Sent/Reply history is: 23
+simple message?:1
+message contents: asdf
+---
+---
+From:0
+Sent/Reply history is: 24
+simple message?:1
+message contents: 
+
+---
+---
+From:0
+Sent/Reply history is: 25
+simple message?:1
+message contents: f
+---
+---
+From:0
+Sent/Reply history is: 26
+simple message?:1
+message contents: 
+
+---
+---
+From:0
+Sent/Reply history is: 27
+simple message?:1
+message contents: sfs
+---
+---
+From:0
+Sent/Reply history is: 28
+simple message?:1
+message contents: 
+
+---
+---
+From:0
+Sent/Reply history is: 1
+simple message?:204
+message contents: yoo
+---
+---
+From:0
+Sent/Reply history is: 2
+simple message?:1
+message contents: 
+
+---
+---
+From:380
+Sent/Reply history is: 1
+simple message?:204
+message contents: hello
+---
+---
+From:380
+Sent/Reply history is: 2
+simple message?:1
+message contents: 
+
+---
+---
+From:380
+Sent/Reply history is: 3
+simple message?:1
+message contents: k
+---
+---
+From:380
+Sent/Reply history is: 4
+simple message?:1
+message contents: 
+
+---
+---
+From:408
+Sent/Reply history is: 1
+simple message?:204
+message contents: fuk
+---
+---
+From:412
+Sent/Reply history is: 1
+simple message?:204
+message contents: h
+---
+---
+From:392
+Sent/Reply history is: 1
+simple message?:204
+message contents: yo
+---
+---
+From:392
+Sent/Reply history is: 2
+simple message?:1
+message contents: herro
+---
+---
+From:392
+Sent/Reply history is: 3
+simple message?:1
+message contents: i
+---
+---
+From:392
+Sent/Reply history is: 4
+simple message?:1
+message contents: fdsa fds fgsd sdssgggg
+---
+---
+From:380
+Sent/Reply history is: 1
+simple message?:204
+message contents: gfg
+---
+---
+From:380
+Sent/Reply history is: 2
+simple message?:1
+message contents: 
+
+---
+---
+From:380
+Sent/Reply history is: 3
+simple message?:1
+message contents: yo
+---
+---
+From:380
+Sent/Reply history is: 4
+simple message?:1
+message contents: 
+
+---

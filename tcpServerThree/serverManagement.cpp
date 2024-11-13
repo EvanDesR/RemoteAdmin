@@ -1,13 +1,14 @@
 //Home of all things that turn command instructions into action.
 #include "main.h"
 #include "sharedObjects.h"
+#include "connectionModules.h"
 //std::vector<clientSocketInformation> vectorOfClientSocketInformation;
 
 
 
 void clientSocketInformation::logClientReply(clientSocketInformation& client, char serverSendingMsg[4096])
 {
-	std::cout << "sf sfd" << "\n";
+	std::cout << "log client reply entered" << "\n";
 
 	vectorAndMapAccessMutex.lock();
 
@@ -120,11 +121,7 @@ bool clientSocketInformation::isDisconnected(FD_SET clientSocketSet, bool closeB
 		return (amountOfNullBeforeInput > 4090) ? true : false; //yay finally, I finally thought to use the ternary operator!
 	}
 }
-//bool clientSocketInformation::closeConnection(int socketToRemove)
-//{
-	//std::cout << "removing clientSocketInformation object " << listOfClientSocketInformation[socketToRemove].socketOfClient << "from listOfClientSocketInformation";
 
-//}
 
 
 void clientSocketInformation::closeConnection(int elementAddress)
@@ -151,23 +148,7 @@ void clientSocketInformation::closeConnection(int elementAddress)
 
 
 
-void forwardToAll(char buff[4096], int buffSize, SOCKET& fromsocket)
-{
-	int socketIncrementer = 0; //0 owrked
-	int amountOfSocketsInvectorOfClientSocketInformation = vectorOfClientSocketInformation.size();
-	char* sendbuf = buff;
 
-	while (amountOfSocketsInvectorOfClientSocketInformation > socketIncrementer)
-	{
-		if (vectorOfClientSocketInformation[socketIncrementer].socketOfClient != fromsocket)
-		{
-			std::cout << "frwrding msg from socket " << fromsocket << " to socket: " << vectorOfClientSocketInformation[socketIncrementer].socketOfClient << "\n";
-			send(vectorOfClientSocketInformation[socketIncrementer].socketOfClient, sendbuf, (int)strlen(sendbuf), 0);
-		}
-		socketIncrementer++;
-	}
-
-}
 
 
 
@@ -190,7 +171,7 @@ int howManySocketsInListOfClientSocketInformation()
 
 
 
-void incomingHandler(SOCKET &servSocket)
+void incomingHandler(SOCKET &servSocket) //checks and adds any inbound connection to hashMap and vector, and then iterates through vector to check if any sockets are readable.
 {
 	//SOCKET serverSock = servSocket;
 	int i{};
@@ -222,7 +203,7 @@ void incomingHandler(SOCKET &servSocket)
 		int totalSockCount = howManySocketsInListOfClientSocketInformation(); // this is ass.
 
 
-		while (i < totalSockCount)
+		while (i < totalSockCount) //
 		{
 			//	if (hashMap[i].isReadable(hashMap[i].socketOfClientAsSet) == 0)
 
@@ -239,13 +220,16 @@ void incomingHandler(SOCKET &servSocket)
 					vectorOfClientSocketInformation[i].closeConnection(i);
 					break;
 				}
-				else if (inbound != 0)
+				else if (inbound != 0 && inbound != -1)
 				{
 					std::cout << "operating on a reply \n";
 					SOCKET destinationSocket = vectorOfClientSocketInformation[i].socketOfClient;
-					hashMap[i].logClientReply(hashMap[i], buff);
+					hashMap[socketToTest].logClientReply(hashMap[socketToTest], buff); //socketToTest is used as an integer, for the key value. hashMap holds clientSocketInformation object as the value corresponding to key.
 				}
-
+				else
+				{
+					std::cout << "Error of some sort with recv() calls return value????";
+				}
 
 					//vectorOfClientSocketInformation[i].logClientReply(hashMap[destinationSocket], buff);
 					//hashMap[socketToTest].logClientReply(hashMap[destinationSocket], buff);
