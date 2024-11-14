@@ -61,7 +61,7 @@ void connectionParser(std::string input)
         for (auto it = begin; it != end; ++it) {
             flagCounter++;
             if (flagCounter == 2) {
-                moduleFlagParsed = (it->str()); //I dont even know i this must be cast into str()? as its of type auto. It should already be a string.
+                moduleFlagParsed = (it->str()); //I dont even know i this must be cast into str()? as its of type auto. It should already be a string.?
                 std::cout << "moduleFlagParsed: " << moduleFlagParsed << "\n";
                 // Outputs: "Found: /flag2"
             }
@@ -123,13 +123,14 @@ void serverParser(std::string input)
     std::cout << "entered server parser \n";
     std::smatch matches;
     //   std::string moduleFlagParsedLower;
-
+    //size_t = input.find()
     std::regex moduleFlagRegex("(/\\w+)$");
 
     std::string moduleFlagParsed;
     std::string moduleFlagParsedLower;
 
     std::sregex_iterator begin(input.begin(), input.end(), allFlags), end;
+
     int flagCounter = 0;
     for (auto it = begin; it != end; ++it) {
         flagCounter++;
@@ -184,12 +185,24 @@ void cliParser()
 {
     while (true)
     {
+        std::string moduleFlag;
         std::string testString;
         std::getline(std::cin, testString);
+        std::sregex_iterator begin(testString.begin(), testString.end(), allFlags), end;
 
-
-
-        std::transform(testString.begin(), testString.end(), testString.begin(), [](unsigned char c) {return std::tolower(c); });
+        int flagCounter = 0;
+        for (auto it = begin; it != end; ++it) {
+            flagCounter++;
+            if (flagCounter == 2) {
+                moduleFlag = it->str(); //module Flag is stored!
+                std::cout << "moduleFlagParsed: " << moduleFlag << "\n";
+                // Outputs: "Found: /flag2"
+            }
+        }
+        std::string strAfterModule = testString.substr((testString.find(moduleFlag)+moduleFlag.length())); //creating string of everything after module by using the match for moduleFlag + moduleFlag length.
+        std::string StrToTheModule = testString.substr(0,(testString.find(moduleFlag)+ moduleFlag.length())); //creating string of everything up to, AND including the module flag
+        std::transform(StrToTheModule.begin(), StrToTheModule.end(), StrToTheModule.begin(), [](unsigned char c) {return std::tolower(c); }); //make StrToTheModule all lowercase
+        testString = StrToTheModule.append(strAfterModule); //join them back together.
         vectorAndMapAccessMutex.lock();
         if (std::regex_search(testString, validConnection)) //
         {

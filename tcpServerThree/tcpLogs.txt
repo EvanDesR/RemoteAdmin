@@ -2700,3 +2700,29 @@ simple message?:1
 message contents: 
 
 ---
+---
+From:372
+Sent/Reply history is: 1
+simple message?:204
+message contents: fds
+---
+---
+From:372
+Sent/Reply history is: 2
+simple message?:1
+message contents: 
+
+---
+---
+From:372
+Sent/Reply history is: 1
+simple message?:204
+message contents: fdsa
+---
+---
+From:372
+Sent/Reply history is: 2
+simple message?:1
+message contents: 
+
+---

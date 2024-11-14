@@ -73,21 +73,19 @@ void main()
 
 
 
-//todo before release
-
-
+	//todo before release
 
 //rework logging entirely.
 
-//functions take SOCKET as arg, and that parameter is provided by hashMap[socketHere]. (mostly done already)
-
-//CLI Parser enforces lowercase only up to the second flag
-
 //general stylistic things (colour,bracketting, and remove bug testing std::couts)
 
-
+//docs
 
 
 
 //DONE 
 //replace iteration in incomingHandler, to use unsorted_map iterator beginning to end. http://scottmeyers.blogspot.com/2015/09/should-you-be-using-something-instead.html (unsorted_map iteration is FAST!)
+
+//functions take SOCKET as arg, and that parameter is provided by hashMap[socketHere]. (mostly done already)
+
+//CLI Parser enforces lowercase only up to the second flag
