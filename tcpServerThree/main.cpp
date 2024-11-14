@@ -5,14 +5,13 @@
 #include <ws2def.h>
 #include <stdlib.h>
 #include <time.h>
-#include <vector>
 #include <sys/types.h>
 #include <array>
 #include <unordered_map>
 #include <thread>
 #include <mutex>
 #pragma comment(lib, "ws2_32.lib") //winsock library file
-const timeval msgHandlerTimeout = { 0,  10 }; // 50ms timeout for recv
+const timeval msgHandlerTimeout = { 0,  10 }; // 10ms timeout for every recv check
 struct addrinfo hints, * server; 
 struct fd_set serverListeningSocketAsSet;
 #include "sharedObjects.h"
@@ -20,7 +19,6 @@ struct fd_set serverListeningSocketAsSet;
 #include "connectionModules.h"
 #include "inputAPI.h"
 std::unordered_map<SOCKET, clientSocketInformation> hashMap;
-std::vector<clientSocketInformation> vectorOfClientSocketInformation; //
 std::mutex vectorAndMapAccessMutex;
 
 
@@ -78,19 +76,18 @@ void main()
 //todo before release
 
 
+
 //rework logging entirely.
 
-//functions take SOCKET as arg, and that parameter is provided by hashMap[socketHere].
-
-//replace iteration in incomingHandler, to use unsorted_map iterator beginning to end. http://scottmeyers.blogspot.com/2015/09/should-you-be-using-something-instead.html (unsorted_map iteration is FAST!)
-
+//functions take SOCKET as arg, and that parameter is provided by hashMap[socketHere]. (mostly done already)
 
 //CLI Parser enforces lowercase only up to the second flag
 
-//general stylistic things
+//general stylistic things (colour,bracketting, and remove bug testing std::couts)
 
 
 
 
 
-
+//DONE 
+//replace iteration in incomingHandler, to use unsorted_map iterator beginning to end. http://scottmeyers.blogspot.com/2015/09/should-you-be-using-something-instead.html (unsorted_map iteration is FAST!)

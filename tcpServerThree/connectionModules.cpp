@@ -5,7 +5,6 @@
 #include <ws2def.h>
 #include <stdlib.h>
 #include <time.h>
-#include <vector>
 #include <sys/types.h>
 #include <array>
 #pragma comment(lib, "ws2_32.lib") //winsock library file
@@ -37,18 +36,16 @@ int cmdModule(SOCKET& clientPassedToCmd, std::string passedString) //pass by ref
 
 void forwardToAll(char buff[4096], int buffSize, SOCKET& fromsocket) //exists strictly for testing purposes.
 {
-	int socketIncrementer = 0; //0 owrked
-	int amountOfSocketsInvectorOfClientSocketInformation = vectorOfClientSocketInformation.size();
 	char* sendbuf = buff;
 
-	while (amountOfSocketsInvectorOfClientSocketInformation > socketIncrementer)
+	for(auto iterator = hashMap.begin(), end = hashMap.end(); iterator != end; iterator++)
 	{
-		if (vectorOfClientSocketInformation[socketIncrementer].socketOfClient != fromsocket)
+		
+		if ((iterator->first) != fromsocket) //We can use the key value (first), for the checking because the key value is the sockFD as int (sockfd is actually uint64)
 		{
-			std::cout << "frwrding msg from socket " << fromsocket << " to socket: " << vectorOfClientSocketInformation[socketIncrementer].socketOfClient << "\n";
-			send(vectorOfClientSocketInformation[socketIncrementer].socketOfClient, sendbuf, (int)strlen(sendbuf), 0);
+			std::cout << "frwrding msg from socket " << fromsocket << " to socket: " << (iterator->first) << "\n";
+			send((iterator->first), sendbuf, (int)strlen(sendbuf), 0);
 		}
-		socketIncrementer++;
 	}
 
 }

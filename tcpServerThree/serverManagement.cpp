@@ -2,7 +2,6 @@
 #include "main.h"
 #include "sharedObjects.h"
 #include "connectionModules.h"
-//std::vector<clientSocketInformation> vectorOfClientSocketInformation;
 
 
 
@@ -124,49 +123,25 @@ bool clientSocketInformation::isDisconnected(FD_SET clientSocketSet, bool closeB
 
 
 
-void clientSocketInformation::closeConnection(int elementAddress)
+void clientSocketInformation::closeConnection(SOCKET& socketToClose) //once vector is removed, this should take SOCKET as arg.
 {
-	if (vectorOfClientSocketInformation.size() > 1)
+	if (hashMap.size() > 1)
 	{
-
-		int deletedSockFDNum = vectorOfClientSocketInformation[elementAddress].socketOfClient;
+		int socketToDelete = socketToClose;
 		vectorAndMapAccessMutex.lock();
-		hashMap.erase(elementAddress);
-		vectorOfClientSocketInformation.erase(vectorOfClientSocketInformation.begin() + elementAddress);
+		hashMap.erase(socketToClose);
 		vectorAndMapAccessMutex.unlock();
-		std::cout << "socket " << deletedSockFDNum << "/" << elementAddress << " Disconnected! They been removed from vectorOfClientInformation. \n";
+		std::cout << "socket " << socketToDelete << " Disconnected! They been removed from hashMap. \n";
 
 	}
 	else
 	{
-		vectorOfClientSocketInformation.clear();
-		std::cout << "vectorOfClientSocketInformation has been entirely wiped. size " << vectorOfClientSocketInformation.size() << "\n";
+		vectorAndMapAccessMutex.lock();
+		hashMap.clear();
+		vectorAndMapAccessMutex.unlock();
+		std::cout << "hashMap has been entirely wiped. size " << hashMap.size() << "\n";
 	}
 	// dd errror checking eventually
-}
-
-
-
-
-
-
-
-
-/* void sendMsg(clientSocketInformation& destinationSocket, char* buff)
-{
-
-	char* sendbuf = buff;
-	forwardToAll(sendbuf, (int)strlen(sendbuf), destinationSocket.socketOfClient);
-	send(destinationSocket.socketOfClient, sendbuf, (int)strlen(sendbuf), 0);
-}
-*/
-
-
-
-
-int howManySocketsInListOfClientSocketInformation()
-{
-	return vectorOfClientSocketInformation.size();
 }
 
 
@@ -192,38 +167,37 @@ void incomingHandler(SOCKET &servSocket) //checks and adds any inbound connectio
 			//int i = 0;
 
 			std::cout << "attempting to establish socket connection with \n";
-			SOCKET clientAndServerCommunicationSocket = accept(servSocket, NULL, NULL); //accept blocks until connection is made. That is why we did the above inbound queue check
+			SOCKET clientAndServerCommunicationSocket = accept(servSocket, NULL, NULL); //accept will block until a connection is made. That is why we use IsThereincoming select() to check first
 			clientSocketInformation newClientObject = { clientAndServerCommunicationSocket };
-			vectorOfClientSocketInformation.push_back(newClientObject);
+			//vectorOfClientSocketInformation.push_back(newClientObject);
 			hashMap.insert({ newClientObject.socketOfClient, newClientObject });
 			std::cout << "new connection from" << newClientObject.socketOfClient << "\n";
 			//hashMap.
 		}	//vectorOfClientSocketInformation.insert
 
-		int totalSockCount = howManySocketsInListOfClientSocketInformation(); // this is ass.
 
-
-		while (i < totalSockCount) //
+		//while (i < totalSockCount)
+		for (auto it = hashMap.begin(), end = hashMap.end(); it != end; it++)//it is a iterator. This is replacing vectorOfClientSocketInformation loop as its faster and clean(er)
 		{
-			//	if (hashMap[i].isReadable(hashMap[i].socketOfClientAsSet) == 0)
-
-			if (vectorOfClientSocketInformation[i].isReadable(vectorOfClientSocketInformation[i].socketOfClientAsSet) != 0)
+			//SOCKET currentTest = it->second.socketOfClient;
+			it->second.isReadable(it->second.socketOfClientAsSet);
+			if (it->second.isReadable(it->second.socketOfClientAsSet) != 0) //REPLACE W: UNSORTED MAP FOR LOOP ITERATOR
 			{
 				ZeroMemory(buff, 4096);
-				SOCKET socketToTest = vectorOfClientSocketInformation[i].socketOfClient; //Copies socketOfClient from listOfclientSocketInformation object array
+				SOCKET socketToTest = it->second.socketOfClient;
 				int inbound = recv(socketToTest, buff, 4096, 0); //hangs until inboundSocket has data!, if we can intelligently select what filedescriptor inboundSocket is this wont be a proble,
 				forwardToAll(buff, buffSize, socketToTest);
-				std::cout << totalSockCount << " AND I = " << i << "\n";
 
 				if (inbound == 0 || inbound == -1) //Controls the possibily of read data that is indicative of a socket being shutdown
 				{
-					vectorOfClientSocketInformation[i].closeConnection(i);
+					//vectorOfClientSocketInformation[i].closeConnection(i);
+					hashMap.erase(it->second.socketOfClient);
 					break;
 				}
 				else if (inbound != 0 && inbound != -1)
 				{
 					std::cout << "operating on a reply \n";
-					SOCKET destinationSocket = vectorOfClientSocketInformation[i].socketOfClient;
+					//SOCKET destinationSocket = vectorOfClientSocketInformation[i].socketOfClient;
 					hashMap[socketToTest].logClientReply(hashMap[socketToTest], buff); //socketToTest is used as an integer, for the key value. hashMap holds clientSocketInformation object as the value corresponding to key.
 				}
 				else

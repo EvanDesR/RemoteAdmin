@@ -5,7 +5,6 @@
 #include <ws2def.h>
 #include <stdlib.h>
 #include <time.h>
-#include <vector>
 #include <sys/types.h>
 #include <array>
 #pragma comment(lib, "ws2_32.lib") //winsock library file
@@ -83,7 +82,6 @@ void connectionParser(std::string input)
             changeAlias(hashMap[inputSocketParsed].socketOfClient);
             std::cout << "new alias is: " << hashMap[inputSocketParsed].alias << " (ACCESSED VIA HASHMAP REFERNCE)";
 
-            //update vector call
         }
         else if (moduleFlagParsed == "/forwardtoall")
         {
@@ -93,7 +91,6 @@ void connectionParser(std::string input)
             //forwardToAll(hashMap[inputSocketParsed]);
             std::cout << "forwardToAll() parameters require a rework as its not optimized for hashMap centric design";
 
-            //update vector call
         }
         else if (moduleFlagParsed == "/reconscript")
         {

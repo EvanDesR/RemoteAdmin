@@ -65,7 +65,7 @@ struct clientSocketInformation
 	SOCKET socketOfClient{};
 	bool isReadable(FD_SET);
 	bool isDisconnected(FD_SET, bool, int);
-	void closeConnection(int);
+	void closeConnection(SOCKET&);
 	std::vector<messageInformation> messages;
 	void logClientReply(clientSocketInformation& socketForKey, char serverSendingMsg[4096]);
 	void logSent(clientSocketInformation&, char storeThis[4096]);
