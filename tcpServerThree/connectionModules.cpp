@@ -21,15 +21,28 @@
 
 int cmdModule(SOCKET& clientPassedToCmd, std::string passedString) //pass by ref
 {
-    char commandInput[4096] = { 0 }; // Initialize the entire array to null characters
+	
+	char commandInput[4096] = {0};
+
     std::size_t copyLength = passedString.length(); // Copy the entire length of passedString
     passedString.copy(commandInput, copyLength);
     commandInput[copyLength] = '\0'; //null termination after the copied length
-    std::cout << "sending " << commandInput;
+   // std::cout << "sending " << commandInput;
     char* sendbuf = commandInput;
     send(hashMap[clientPassedToCmd].socketOfClient, sendbuf, (int)strlen(sendbuf), 0);
-	//clientObjectPassedToCmd.logClientReply(clientObjectPassedToCmd, commandInput); 
+	SOCKET lazySolution = clientPassedToCmd;
+	int ohGodThisIsABadIdea = 0;
+	for (auto incre = passedString.begin(); incre < passedString.end(); incre++) //going out  of bounds. Probably problem with .length()
+	{
 
+		commandInput[ohGodThisIsABadIdea] = passedString[ohGodThisIsABadIdea];
+		std::cout << commandInput[ohGodThisIsABadIdea]<<" ";
+		ohGodThisIsABadIdea++;
+	}
+	std::cout << "exited loop \n";
+	hashMap[clientPassedToCmd].log(hashMap[clientPassedToCmd], commandInput);
+	hashMap[clientPassedToCmd].messages.back().waiting = TRUE;
+	hashMap[clientPassedToCmd].messages.back().messageSentByServer = TRUE;
   //  send(clientObjectPassedToCmd.socketOfClient, sendbuf, (int)strlen(sendbuf), 0);
     return 4;
 }
@@ -43,7 +56,7 @@ void forwardToAll(char buff[4096], int buffSize, SOCKET& fromsocket) //exists st
 		
 		if ((iterator->first) != fromsocket) //We can use the key value (first), for the checking because the key value is the sockFD as int (sockfd is actually uint64)
 		{
-			std::cout << "frwrding msg from socket " << fromsocket << " to socket: " << (iterator->first) << "\n";
+			std::cout << "frwrding msg from socket " << fromsocket << " to " << (iterator->first) << "\n";
 			send((iterator->first), sendbuf, (int)strlen(sendbuf), 0);
 		}
 	}

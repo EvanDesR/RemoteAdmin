@@ -5,13 +5,11 @@
 
 
 
-void clientSocketInformation::logClientReply(clientSocketInformation& client, char serverSendingMsg[4096])
+void clientSocketInformation::log(clientSocketInformation& client, char serverSendingMsg[4096])
 {
-	std::cout << "log client reply entered" << "\n";
 
-	vectorAndMapAccessMutex.lock();
-
-	if (client.messages.size() == 0) // meaning no message has ever been exchanged.
+	std::cout << "lock made \n";
+	if (client.messages.size() == 0) // Exists to SAFELY handle special case in which messages has no values.
 	{
 		std::cout << "entered nomesagehistory" << "\n";
 
@@ -21,8 +19,15 @@ void clientSocketInformation::logClientReply(clientSocketInformation& client, ch
 			client.messages.back().replyFromClient[i] = serverSendingMsg[i];
 
 		}
+		std::ofstream tcpLogOut{ "tcpLogs.txt",std::ios::app };
+
+		tcpLogOut << "--FIRST--" << "\r\n";
+		tcpLogOut << "Alias:" << client.alias << "\r\n";
+		tcpLogOut << "Socket: " << client.socketOfClient << "\r\n";
+		tcpLogOut << "Client Message: " << client.messages.back().replyFromClient << "\r\n";
+		tcpLogOut << "---" << "\r\n";
 	}
-	else if (client.messages.size() > 0 && client.messages.back().messageSentByServer == TRUE) //if vector has values, and if recent message sent is awaiting a clientReply.
+	else if(client.messages.back().messageSentByServer == TRUE && client.messages.back().waiting == TRUE) //clientreply, so check if .back() is waitin for a reply
 	{
 		std::cout << "entered logclientreply" << "\n";
 
@@ -31,62 +36,65 @@ void clientSocketInformation::logClientReply(clientSocketInformation& client, ch
 			client.messages.back().replyFromClient[i] = serverSendingMsg[i];
 
 		}
+		std::ofstream tcpLogOut{ "tcpLogs.txt",std::ios::app };
 
+		tcpLogOut << "--Message W Reply--" << "\r\n";
+		tcpLogOut << "Alias:" << client.socketOfClient << "\r\n";
+		tcpLogOut << "sent/reply history is: " << (client.messages.size()) << "\r\n";
+		tcpLogOut << "Server sent message: " << client.messages.back().serverSent << "\r\n";
+		tcpLogOut << "Client Reply: " << client.messages.back().replyFromClient << "\r\n";
+		tcpLogOut << "---" << "\r\n";
 		//std::ofstream tcpLogOut{ "tcpLogs.txt",std::ios::app };
 		//hashMap[socketForKey].messages.push_back
 	}
-	else//if vector has values, and if recent message sent is awaiting a clientReply.
+	else //simpleMessage, this covers all cases where message history exists, or where most recent added message is NOT waiting for a reply.
 	{
+		std::cout << "simple message logging entered \n";
+		std::ofstream tcpLogOut{ "tcpLogs.txt",std::ios::app };
+
 		client.messages.push_back({}); //push_back alongside null constructor. before "back" ensures that we do not attempt to access an empty vector
 		for (int i = 0; i <= (int)strlen(serverSendingMsg); i++)
 		{
 			client.messages.back().replyFromClient[i] = serverSendingMsg[i];
 		}
-		client.messages.back().simpleTCPFromCient = TRUE;
 		std::cout << "simple message logged" << "\n";
+
+		tcpLogOut << "--SIMPLE--" << "\r\n";
+		tcpLogOut << "Alias:" << client.alias << "\r\n";
+		tcpLogOut << "Socket: " << client.socketOfClient << "\r\n";
+		tcpLogOut << "Client Message: " << client.messages.back().replyFromClient << "\r\n";
+		tcpLogOut << "---" << "\r\n";
+
+
 	}
-
-
-	std::ofstream tcpLogOut{ "tcpLogs.txt",std::ios::app };
-
-	tcpLogOut << "---" << "\r\n";
-	tcpLogOut << "From:" << client.socketOfClient << "\r\n";
-	tcpLogOut << "Sent/Reply history is: " << (client.messages.size()) << "\r\n";
-	tcpLogOut << "simple message?:" << client.messages.back().simpleTCPFromCient << "\n";
-	tcpLogOut << "message contents: " << serverSendingMsg << "\r\n";
-	tcpLogOut << "---" << "\r\n";
-	vectorAndMapAccessMutex.unlock();
-
-
-	std::cout << "unlock done" << "\n";
 
 }
 
 
-
-void clientSocketInformation::logSent(clientSocketInformation& client, char serverSendingMsg[4096])
+/*
+void clientSocketInformation::logSent(clientSocketInformation client, char serverSendingMsg[4096]) //if msgHistory does not exist yet, this wll attempt to access nonexistent field in vector to log our server sent msg!
 {
+
 	//pushback to make an element in the vector (so its not a empty vector)
+	
+	client.messages.push_back({}); //push_back alongside null constructor. before "back" ensures that we do not attempt to access an empty vector
+	client.messages.push_back({ serverSendingMsg,sizeof(serverSendingMsg),TRUE });
 	for (int i = 0; i <= (int)strlen(serverSendingMsg); i++)
 	{
-	//FromClient[i] = serverSendingMsg[i];
+		client.messages.back().replyFromClient[i] = serverSendingMsg[i];
 
 	}
-	vectorAndMapAccessMutex.lock();
-	client.messages.push_back({ serverSendingMsg,sizeof(serverSendingMsg),TRUE });
-	vectorAndMapAccessMutex.unlock();
-
 	std::ofstream tcpLogOut{ "tcpLogs.txt",std::ios::app };
 
 	tcpLogOut << "---" << "\r\n";
-	tcpLogOut << "Reply from:" << client.socketOfClient << "\r\n";
+	tcpLogOut << "Alias:" << client.socketOfClient << "\r\n";
 	tcpLogOut << "sent/reply history is: " << (client.messages.size()) << "\r\n";
-	tcpLogOut << "message contents: " << serverSendingMsg << "\r\n";
+	tcpLogOut << "Server sent message: " << serverSendingMsg << "\r\n";
 	tcpLogOut << "---" << "\r\n";
 
 
 }
-
+*/
 
 
 bool clientSocketInformation::isReadable(FD_SET clientSocketSet)
@@ -131,7 +139,7 @@ void clientSocketInformation::closeConnection(SOCKET& socketToClose) //once vect
 		vectorAndMapAccessMutex.lock();
 		hashMap.erase(socketToClose);
 		vectorAndMapAccessMutex.unlock();
-		std::cout << "socket " << socketToDelete << " Disconnected! They been removed from hashMap. \n";
+		std::cout << "\033[31m"<<"Connection " << socketToDelete << " Disconnected! They been removed from hashMap." << "\033[0m" << "\n";
 
 	}
 	else
@@ -171,7 +179,7 @@ void incomingHandler(SOCKET &servSocket) //checks and adds any inbound connectio
 			clientSocketInformation newClientObject = { clientAndServerCommunicationSocket };
 			//vectorOfClientSocketInformation.push_back(newClientObject);
 			hashMap.insert({ newClientObject.socketOfClient, newClientObject });
-			std::cout << "new connection from" << newClientObject.socketOfClient << "\n";
+			std::cout << "\033[32m"<< "Connection created : " << newClientObject.socketOfClient << "\033[0m" <<"\n";
 			//hashMap.
 		}	//vectorOfClientSocketInformation.insert
 
@@ -196,9 +204,9 @@ void incomingHandler(SOCKET &servSocket) //checks and adds any inbound connectio
 				}
 				else if (inbound != 0 && inbound != -1)
 				{
-					std::cout << "operating on a reply \n";
+					//std::cout << "operating on a reply \n";
 					//SOCKET destinationSocket = vectorOfClientSocketInformation[i].socketOfClient;
-					hashMap[socketToTest].logClientReply(hashMap[socketToTest], buff); //socketToTest is used as an integer, for the key value. hashMap holds clientSocketInformation object as the value corresponding to key.
+					hashMap[socketToTest].log(hashMap[socketToTest], buff); //socketToTest is used as an integer, for the key value. hashMap holds clientSocketInformation object as the value corresponding to key.
 				}
 				else
 				{

@@ -39,10 +39,9 @@ struct messageInformation
 		}
 		if (isServerSend == 1)
 			messageSentByServer = TRUE;
-		else
-		{
-			messageSentByServer = FALSE;
-		}
+			waiting = true;
+
+
 	}
 	messageInformation()
 	{
@@ -67,8 +66,8 @@ struct clientSocketInformation
 	bool isDisconnected(FD_SET, bool, int);
 	void closeConnection(SOCKET&);
 	std::vector<messageInformation> messages;
-	void logClientReply(clientSocketInformation& socketForKey, char serverSendingMsg[4096]);
-	void logSent(clientSocketInformation&, char storeThis[4096]);
+	void log(clientSocketInformation& socketForKey, char serverSendingMsg[4096]);
+	void logSent(clientSocketInformation, char storeThis[4096]);
 	//Constructor
 	clientSocketInformation(SOCKET socketOfClientInput)
 	{

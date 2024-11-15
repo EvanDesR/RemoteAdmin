@@ -120,7 +120,6 @@ void connectionParser(std::string input)
 
 void serverParser(std::string input)
 {
-    std::cout << "entered server parser \n";
     std::smatch matches;
     //   std::string moduleFlagParsedLower;
     //size_t = input.find()
